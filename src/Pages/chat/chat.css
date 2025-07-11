@@ -532,3 +532,45 @@ textarea {
     font-size: 2rem;
   }
 }
+
+.file-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.file-name {
+  color: #1e40af;
+  font-weight: 500;
+  word-break: break-all;
+  max-width: 80%;
+}
+
+.remove-file {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.remove-file:hover {
+  background: rgba(239, 68, 68, 0.2);
+  transform: scale(1.1);
+}
+
+.upload-area.has-file {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}

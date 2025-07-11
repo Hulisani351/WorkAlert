@@ -103,10 +103,31 @@ function Chat() {
               <h2>Upload Your CV</h2>
               <div className="form-group file-upload">
                 <label htmlFor="cv-upload">
-                  <div className="upload-area">
-                    <span className="upload-icon">📄</span>
+                  <div className={`upload-area ${cv ? 'has-file' : ''}`}>
+                    <span className="upload-icon">{cv ? '✅' : '📄'}</span>
                     <span className="upload-text">
-                      {cv ? cv.name : "Drop your CV here or click to browse"}
+                      {cv ? (
+                        <div className="file-info">
+                          <span className="file-name">{cv.name}</span>
+                          <button 
+                            type="button" 
+                            className="remove-file"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setCv(null);
+                              const fileInput = document.getElementById('cv-upload') as HTMLInputElement;
+                              if (fileInput) {
+                                fileInput.value = '';
+                              }
+                            }}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ) : (
+                        "Drop your CV here or click to browse"
+                      )}
                     </span>
                   </div>
                   <input
