@@ -8,6 +8,7 @@ function Chat() {
   const [whatsapp, setWhatsapp] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleCvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -27,20 +28,60 @@ function Chat() {
     setEmail(e.target.value);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!whatsapp && !email) {
       setMessage("Please provide either WhatsApp number or email to receive alerts");
       return;
     }
-    // Simulate backend submission
-    setTimeout(() => {
-      setMessage("Great choice! You're now on the list for job alerts. Check your WhatsApp/email soon!");
-    }, 500);
-    setCv(null);
-    setSkills("");
-    setWhatsapp("");
-    setEmail("");
+
+    if (!cv && !skills) {
+      setMessage("Please provide either your CV or list your skills");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setMessage(null);
+
+      const formData = new FormData();
+      if (cv) {
+        formData.append('cv', cv);
+      }
+      formData.append('skills', skills);
+      formData.append('whatsapp', whatsapp);
+      formData.append('email', email);
+
+      const response = await fetch("http://127.0.0.1:5000/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Something went wrong');
+      }
+
+      setMessage(data.message);
+      // Reset form
+      setCv(null);
+      setSkills("");
+      setWhatsapp("");
+      setEmail("");
+      
+      // Reset file input
+      const fileInput = document.getElementById('cv-upload') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = '';
+      }
+
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Failed to submit form');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -132,13 +173,13 @@ function Chat() {
           </div>
 
           <div className="form-footer">
-            <button type="submit" className="submit-button">
-              Start Getting Job Alerts
+            <button type="submit" className="submit-button" disabled={isLoading}>
+              {isLoading ? "Submitting..." : "Start Getting Job Alerts"}
               <span className="button-icon">→</span>
             </button>
             
             {message && (
-              <div className={`message ${message.includes("error") ? "error" : "success"}`}>
+              <div className={`message ${message.includes("error") || message.includes("Failed") ? "error" : "success"}`}>
                 {message}
               </div>
             )}
