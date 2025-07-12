@@ -3,7 +3,17 @@ from flask_cors import CORS
 import os
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={
+    r"/api/*": {
+        "origins": [
+            "https://workalert.fly.dev",
+            "http://localhost:5173",  # For local development
+            "http://localhost:3000"   # For local development
+        ],
+        "methods": ["POST", "OPTIONS"],
+        "allow_headers": ["Content-Type"]
+    }
+})
 
 # Set up upload folder
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
