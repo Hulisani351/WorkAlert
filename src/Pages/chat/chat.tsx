@@ -53,7 +53,7 @@ function Chat() {
       formData.append('whatsapp', whatsapp);
       formData.append('email', email);
 
-      const response = await fetch("http://127.0.0.1:5000/api/upload", {
+      const response = await fetch("https://workalert.fly.dev/api/upload", {
         method: "POST",
         body: formData,
       });
