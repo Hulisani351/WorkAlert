@@ -37,11 +37,18 @@ RUN npm prune --omit=dev
 # Final stage for app image
 FROM nginx
 
+# Install curl for healthcheck
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
 # Copy built application
 COPY --from=build /app/dist /usr/share/nginx/html
 
 # Copy nginx configuration
 COPY backend/nginx.conf /etc/nginx/nginx.conf
+
+# Add healthcheck
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:80/ || exit 1
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 80
