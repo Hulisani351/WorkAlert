@@ -35,8 +35,8 @@ FROM nginx:stable-alpine
 # Copy built application
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Copy nginx configuration
-COPY backend/nginx.conf /etc/nginx/nginx.conf
+# Use default nginx.conf but ensure it serves index.html for SPA routing
+RUN sed -i 's/try_files $uri $uri\/ =404;/try_files $uri $uri\/ \/index.html;/' /etc/nginx/conf.d/default.conf
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 80
