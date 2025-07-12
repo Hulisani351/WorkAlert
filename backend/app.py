@@ -38,6 +38,7 @@ def register():
     }), 200
 
 if __name__ == '__main__':
-    print("✅ Backend is running on http://127.0.0.1:5000")
-    app.run(debug=True)
+    port = int(os.getenv("PORT", 5000))
+    print(f"✅ Backend is running on http://0.0.0.0:{port}")
+    app.run(host="0.0.0.0", port=port, debug=True)
 
