@@ -16,6 +16,13 @@ jobs:
           curl -L https://fly.io/install.sh | sh
           echo "$HOME/.fly/bin" >> $GITHUB_PATH
       
+      - name: Create app if it doesn't exist
+        run: |
+          cd backend
+          flyctl apps create workalert-backend --org personal || true
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      
       - name: Deploy Backend
         run: |
           cd backend
