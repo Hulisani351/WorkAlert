@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for backend-quiet-shadow-370 on 2025-07-13T11:45:00Z
+# fly.toml app configuration file generated for workalert-api on 2025-07-13T12:00:00Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = "backend-quiet-shadow-370"
+app = "workalert-api"
 primary_region = "jnb"
 
 [build]

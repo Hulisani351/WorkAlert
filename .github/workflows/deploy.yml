@@ -16,10 +16,22 @@ jobs:
           curl -L https://fly.io/install.sh | sh
           echo "$HOME/.fly/bin" >> $GITHUB_PATH
       
+      - name: List available apps
+        run: |
+          flyctl apps list
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      
+      - name: Create new backend app
+        run: |
+          flyctl apps create workalert-api
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      
       - name: Deploy Backend
         run: |
           cd backend
-          flyctl deploy -a backend-quiet-shadow-370 --remote-only
+          flyctl deploy -a workalert-api --remote-only
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
