@@ -32,7 +32,7 @@ jobs:
         if: steps.check-app.outputs.app_exists == 'false'
         run: |
           cd backend
-          flyctl apps create workalert-backend --org personal
+          flyctl apps create workalert-backend
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
       
