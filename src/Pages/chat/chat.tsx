@@ -53,13 +53,12 @@ function Chat() {
       formData.append('whatsapp', whatsapp);
       formData.append('email', email);
 
-      const response = await fetch("https://backend-quiet-shadow-370.fly.dev/api/upload", {
+      const response = await fetch("/api/upload", {
         method: "POST",
         body: formData,
         headers: {
           'Accept': 'application/json',
         },
-        mode: 'cors',
       });
 
       if (!response.ok) {
