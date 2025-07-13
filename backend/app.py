@@ -10,8 +10,9 @@ CORS(app, resources={
             "http://localhost:5173",  # For local development
             "http://localhost:3000"   # For local development
         ],
-        "methods": ["POST", "OPTIONS"],
-        "allow_headers": ["Content-Type"]
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Origin"],
+        "supports_credentials": True
     }
 })
 
