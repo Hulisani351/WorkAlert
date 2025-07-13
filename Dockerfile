@@ -47,6 +47,9 @@ RUN mkdir -p uploads
 # Final stage for app image
 FROM nginx:stable-alpine
 
+# Install Python and required packages
+RUN apk add --no-cache python3 py3-pip curl
+
 # Copy built frontend
 COPY --from=build /app/dist /usr/share/nginx/html/
 COPY --from=build /app/public/50x.html /usr/share/nginx/html/
@@ -55,9 +58,6 @@ COPY --from=build /app/public/50x.html /usr/share/nginx/html/
 COPY --from=api /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=api /api/main.py /api/main.py
 COPY --from=api /api/uploads /api/uploads
-
-# Install Python runtime
-RUN apk add --no-cache python3 py3-pip
 
 # Copy our custom nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
