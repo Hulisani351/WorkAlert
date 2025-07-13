@@ -29,43 +29,31 @@ COPY . .
 # Build application
 RUN npm run build
 
-# Python API stage
-FROM python:3.11-slim AS api
+# Final stage for app image
+FROM python:3.11-slim
 
-WORKDIR /api
+# Install Nginx and other dependencies
+RUN apt-get update && apt-get install -y nginx curl && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-COPY api/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY api/requirements.txt /api/requirements.txt
+RUN pip install --no-cache-dir -r /api/requirements.txt
 
 # Copy API code
-COPY api/main.py .
-
-# Create uploads directory
-RUN mkdir -p uploads
-
-# Final stage for app image
-FROM nginx:stable-alpine
-
-# Install Python and required packages
-RUN apk add --no-cache python3 py3-pip curl
+COPY api/main.py /api/main.py
+RUN mkdir -p /api/uploads
 
 # Copy built frontend
 COPY --from=build /app/dist /usr/share/nginx/html/
 COPY --from=build /app/public/50x.html /usr/share/nginx/html/
-
-# Copy Python and API
-COPY --from=api /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-COPY --from=api /api/main.py /api/main.py
-COPY --from=api /api/uploads /api/uploads
 
 # Copy our custom nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Create required directories with proper permissions
 RUN mkdir -p /var/log/nginx && \
-    chown -R nginx:nginx /var/log/nginx && \
-    chown -R nginx:nginx /usr/share/nginx/html
+    chown -R www-data:www-data /var/log/nginx && \
+    chown -R www-data:www-data /usr/share/nginx/html
 
 # Copy startup script
 COPY start.sh /start.sh
