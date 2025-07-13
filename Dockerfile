@@ -29,12 +29,35 @@ COPY . .
 # Build application
 RUN npm run build
 
+# Python API stage
+FROM python:3.11-slim AS api
+
+WORKDIR /api
+
+# Install Python dependencies
+COPY api/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy API code
+COPY api/main.py .
+
+# Create uploads directory
+RUN mkdir -p uploads
+
 # Final stage for app image
 FROM nginx:stable-alpine
 
-# Copy built application
+# Copy built frontend
 COPY --from=build /app/dist /usr/share/nginx/html/
 COPY --from=build /app/public/50x.html /usr/share/nginx/html/
+
+# Copy Python and API
+COPY --from=api /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=api /api/main.py /api/main.py
+COPY --from=api /api/uploads /api/uploads
+
+# Install Python runtime
+RUN apk add --no-cache python3 py3-pip
 
 # Copy our custom nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
@@ -44,6 +67,10 @@ RUN mkdir -p /var/log/nginx && \
     chown -R nginx:nginx /var/log/nginx && \
     chown -R nginx:nginx /usr/share/nginx/html
 
+# Copy startup script
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/start.sh"]
