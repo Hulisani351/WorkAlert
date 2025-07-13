@@ -58,7 +58,9 @@ function Chat() {
         body: formData,
         headers: {
           'Accept': 'application/json',
+          'Content-Type': 'multipart/form-data',
         },
+        credentials: 'same-origin',
       });
 
       if (!response.ok) {
