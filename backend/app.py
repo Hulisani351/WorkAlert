@@ -5,14 +5,10 @@ import os
 app = Flask(__name__)
 CORS(app, resources={
     r"/api/*": {
-        "origins": [
-            "https://workalert.fly.dev",
-            "http://localhost:5173",  # For local development
-            "http://localhost:3000"   # For local development
-        ],
+        "origins": ["*"],  # Allow all origins temporarily
         "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Origin"],
-        "supports_credentials": True
+        "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Origin", "Accept"],
+        "supports_credentials": False
     }
 })
 
