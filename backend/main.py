@@ -7,6 +7,8 @@ from sqlalchemy import create_engine, Column, Integer, String, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
+import re
+from werkzeug.utils import secure_filename
 
 app = FastAPI(title="WorkAlert API", version="1.0.0")
 
@@ -43,6 +45,13 @@ def on_startup():
 async def health_check():
     return {"status": "healthy", "message": "WorkAlert API is running"}
 
+ALLOWED_EXTENSIONS = {'.pdf', '.doc', '.docx'}
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
+
+def is_allowed_file(filename):
+    ext = os.path.splitext(filename)[1].lower()
+    return ext in ALLOWED_EXTENSIONS
+
 @app.post("/api/upload")
 async def upload_data(
     cv: Optional[UploadFile] = File(None),
@@ -61,11 +70,30 @@ async def upload_data(
         # Save CV if provided
         cv_filename = None
         if cv:
-            cv_filename = cv.filename
+            # Restrict file type
+            if not is_allowed_file(cv.filename):
+                raise HTTPException(status_code=400, detail="Only PDF, DOC, and DOCX files are allowed.")
+            # Limit file size
+            content = await cv.read()
+            if len(content) > MAX_FILE_SIZE:
+                raise HTTPException(status_code=400, detail="File too large. Max 5MB allowed.")
+            # Sanitize filename
+            cv_filename = secure_filename(cv.filename)
             file_path = os.path.join(UPLOAD_DIR, cv_filename)
             with open(file_path, "wb") as buffer:
-                content = await cv.read()
                 buffer.write(content)
+        else:
+            content = None
+
+        # Save to database
+        db = SessionLocal()
+        try:
+            new_upload = CVUpload(filename=cv_filename or "", skills=skills)
+            db.add(new_upload)
+            db.commit()
+            db.refresh(new_upload)
+        finally:
+            db.close()
 
         return JSONResponse(
             status_code=200,
