@@ -3,6 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import os
 from typing import Optional
+from sqlalchemy import create_engine, Column, Integer, String, Text
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
 
 app = FastAPI(title="WorkAlert API", version="1.0.0")
 
@@ -18,6 +22,22 @@ app.add_middleware(
 # Create uploads directory
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+load_dotenv()
+DATABASE_URL = os.getenv('DATABASE_URL')
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+class CVUpload(Base):
+    __tablename__ = 'cv_uploads'
+    id = Column(Integer, primary_key=True, index=True)
+    filename = Column(String(100), nullable=False)
+    skills = Column(Text, nullable=True)
+
+@app.on_event("startup")
+def on_startup():
+    Base.metadata.create_all(bind=engine)
 
 @app.get("/health")
 async def health_check():
